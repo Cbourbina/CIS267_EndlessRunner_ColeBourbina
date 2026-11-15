@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    Rigidbody2D player_rb;
+    private Rigidbody2D player_rb;
     [SerializeField]
-    float movementSpeed;
-    bool isMoving;
+    private float movementSpeed;
+    private bool isMoving;
     [SerializeField]
-    float moveDistance;
+    private float moveDistance;
+    [SerializeField]
+    private LayerMask collisions;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -28,8 +30,10 @@ public class PlayerController : MonoBehaviour
             float input = Input.GetAxisRaw("Horizontal");
             if (input != 0)
             {
-                Vector2 targetPos = (Vector2)transform.position + ((new Vector2(input, 0) * moveDistance));
-                StartCoroutine(moveCellLateral(targetPos));
+                Vector2 targetPos = new Vector2(transform.position.x, -4) + ((new Vector2(input, 0) * moveDistance));
+                Vector2 targetPosHalf = new Vector2(transform.position.x, -4) + ((new Vector2(input, 0) * (moveDistance / 2)));
+                Vector2 originalPos = new Vector2(transform.position.x, -4);
+                StartCoroutine(movePlayerLateral(targetPos, targetPosHalf, originalPos));
             }
         }
     }
@@ -43,17 +47,46 @@ public class PlayerController : MonoBehaviour
     //    //Debug.Log("Movement Speed: " + movementSpeed);
     //}
 
-    private IEnumerator moveCellLateral(Vector2 targetPosition)
+    private IEnumerator movePlayerLateral(Vector2 targetPosition, Vector2 halfTargetPosition, Vector2 originalPos)
     {
         isMoving = true;
-
-        while (Vector2.Distance(transform.position, targetPosition) > 0.001f)
+        Collider2D collision = Physics2D.OverlapCircle(targetPosition, 0.4f, collisions);
+        if (collision == null)
         {
-            transform.position = Vector2.MoveTowards(transform.position, targetPosition, (movementSpeed * Time.deltaTime));
-            yield return null;
+            while (Vector2.Distance(transform.position, halfTargetPosition) > 0.001f)
+            {
+                collision = Physics2D.OverlapCircle(targetPosition, 0.4f, collisions);
+                transform.position = Vector2.MoveTowards(transform.position, halfTargetPosition, (movementSpeed * Time.deltaTime));
+                yield return null;
+            }
         }
-
-        transform.position = targetPosition;
+        if (collision != null)
+        {
+            while (Vector2.Distance(transform.position, halfTargetPosition) > 0.001f)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, halfTargetPosition, ((movementSpeed) * Time.deltaTime));
+                yield return null;
+            }
+        }
+        if (collision == null)
+        {
+            while (Vector2.Distance(transform.position, targetPosition) > 0.001f)
+            {
+                collision = Physics2D.OverlapCircle(targetPosition, 0.4f, collisions);
+                transform.position = Vector2.MoveTowards(transform.position, targetPosition, (movementSpeed * Time.deltaTime));
+                yield return null;
+            }
+            transform.position = targetPosition;
+        }
+        else 
+        {
+            while (Vector2.Distance(transform.position, originalPos) > 0.001f)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, originalPos, ((movementSpeed) * Time.deltaTime));
+                yield return null;
+            }
+            transform.position = originalPos;
+        }
         isMoving = false;
     }
 }

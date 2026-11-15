@@ -9,6 +9,9 @@ public class VehicleSpawner : MonoBehaviour
     public GameObject bigRig;
     public GameObject truck;
     public GameObject motorcycle;
+    public GameObject coin;
+    public GameObject wrench;
+    public GameObject upgrade;
     public GameObject[] spawnLocations;
     private GameObject objectToSpawn;
     [SerializeField]
@@ -68,11 +71,13 @@ public class VehicleSpawner : MonoBehaviour
 
     private void scheduleWave(float arrivalTime)
     {
+        int randomNum;
+        bool changeLane = false;
         //Random num to decide if next open lane should shift left, right, or stay the same
-        int laneChange = UnityEngine.Random.Range(-1, 2);
-        if ((openLane + laneChange) > -1 && (openLane + laneChange) < 5)
+        int openLaneChange = UnityEngine.Random.Range(-1, 2);
+        if ((openLane + openLaneChange) > -1 && (openLane + openLaneChange) < 5)
         {
-            openLane += laneChange;
+            openLane += openLaneChange;
         }
 
         //List of lanes that an object is allowed to spawn in
@@ -83,9 +88,15 @@ public class VehicleSpawner : MonoBehaviour
         for (int i = 0; i < lanesToSpawn.Count; i++)
         {
             int temp = lanesToSpawn[i];
-            int randomNum = UnityEngine.Random.Range(i, lanesToSpawn.Count);
+            randomNum = UnityEngine.Random.Range(i, lanesToSpawn.Count);
             lanesToSpawn[i] = lanesToSpawn[randomNum];
             lanesToSpawn[randomNum] = temp;
+        }
+
+        randomNum = UnityEngine.Random.Range(1, 6);
+        if (randomNum == 1)
+        {
+            changeLane = true;
         }
 
         //Determine the total number of vehicles to spawn across all open lanes
@@ -94,11 +105,31 @@ public class VehicleSpawner : MonoBehaviour
         for (int i = 0; i < vehicleCount; i++)
         {
             int lane = lanesToSpawn[i];
-            StartCoroutine(spawnAtTime(lane, arrivalTime));
+            if (changeLane == true)
+            {
+                if ((lane + 1) == openLane)
+                {
+                    StartCoroutine(spawnAtTime(lane, arrivalTime, false, true));
+                }
+                else if ((lane - 1) == openLane)
+                {
+                    StartCoroutine(spawnAtTime(lane, arrivalTime, true, false));
+                }
+                changeLane = false;
+            }
+            else
+            {
+                StartCoroutine(spawnAtTime(lane, arrivalTime, false, false));
+            }
+        }
+        randomNum = UnityEngine.Random.Range(1, 6);
+        if (randomNum < 4)
+        {
+            StartCoroutine(spawnColectableAtTime(openLane, arrivalTime));
         }
     }
 
-    private IEnumerator spawnAtTime(int lane, float arrivalTime)
+    private IEnumerator spawnAtTime(int lane, float arrivalTime, bool changeLaneLeft, bool changeLaneRight)
     {
         //Distance between spawner and player
         float distance = spawnLocations[lane].transform.position.y - playerY;
@@ -115,7 +146,96 @@ public class VehicleSpawner : MonoBehaviour
             yield return new WaitForSeconds(waitDuration);
         }
 
-        objectToSpawn = Instantiate(car, spawnLocations[lane].transform.position, Quaternion.identity);
-        objectToSpawn.GetComponent<Car>().setVehicleSpeed(laneSpeeds[lane]);
+        int randomNum = UnityEngine.Random.Range(1, 11);
+        if (lane > 2)
+        {
+            if (randomNum <= 5)
+            {
+                objectToSpawn = Instantiate(bigRig, spawnLocations[lane].transform.position, Quaternion.identity);
+                objectToSpawn.GetComponent<BigRig>().setVehicleSpeed(laneSpeeds[lane]);
+                objectToSpawn.GetComponent<BigRig>().setChangeLaneLeft(changeLaneLeft);
+                objectToSpawn.GetComponent<BigRig>().setChangeLaneRight(changeLaneRight);
+            }
+            else if (randomNum < 8)
+            {
+                objectToSpawn = Instantiate(truck, spawnLocations[lane].transform.position, Quaternion.identity);
+                objectToSpawn.GetComponent<Truck>().setVehicleSpeed(laneSpeeds[lane]);
+                objectToSpawn.GetComponent<Truck>().setChangeLaneLeft(changeLaneLeft);
+                objectToSpawn.GetComponent<Truck>().setChangeLaneRight(changeLaneRight);
+            }
+            else if (randomNum < 10)
+            {
+                objectToSpawn = Instantiate(car, spawnLocations[lane].transform.position, Quaternion.identity);
+                objectToSpawn.GetComponent<Car>().setVehicleSpeed(laneSpeeds[lane]);
+                objectToSpawn.GetComponent<Car>().setChangeLaneLeft(changeLaneLeft);
+                objectToSpawn.GetComponent<Car>().setChangeLaneRight(changeLaneRight);
+            }
+            else
+            {
+                objectToSpawn = Instantiate(motorcycle, spawnLocations[lane].transform.position, Quaternion.identity);
+                objectToSpawn.GetComponent<Motorcycle>().setVehicleSpeed(laneSpeeds[lane]);
+                objectToSpawn.GetComponent<Motorcycle>().setChangeLaneLeft(changeLaneLeft);
+                objectToSpawn.GetComponent<Motorcycle>().setChangeLaneRight(changeLaneRight);
+            }
+        }
+        else
+        {            
+            if (randomNum < 5)
+            {
+                objectToSpawn = Instantiate(truck, spawnLocations[lane].transform.position, Quaternion.identity);
+                objectToSpawn.GetComponent<Truck>().setVehicleSpeed(laneSpeeds[lane]);
+                objectToSpawn.GetComponent<Truck>().setChangeLaneLeft(changeLaneLeft);
+                objectToSpawn.GetComponent<Truck>().setChangeLaneRight(changeLaneRight);
+            }
+            else if (randomNum < 10)
+            {
+                objectToSpawn = Instantiate(car, spawnLocations[lane].transform.position, Quaternion.identity);
+                objectToSpawn.GetComponent<Car>().setVehicleSpeed(laneSpeeds[lane]);
+                objectToSpawn.GetComponent<Car>().setChangeLaneLeft(changeLaneLeft);
+                objectToSpawn.GetComponent<Car>().setChangeLaneRight(changeLaneRight);
+            }
+            else
+            {
+                objectToSpawn = Instantiate(motorcycle, spawnLocations[lane].transform.position, Quaternion.identity);
+                objectToSpawn.GetComponent<Motorcycle>().setVehicleSpeed(laneSpeeds[lane]);
+                objectToSpawn.GetComponent<Motorcycle>().setChangeLaneLeft(changeLaneLeft);
+                objectToSpawn.GetComponent<Motorcycle>().setChangeLaneRight(changeLaneRight);
+            }
+        }
+    }
+
+    private IEnumerator spawnColectableAtTime(int openLane, float arrivalTime)
+    {
+        //Distance between spawner and player
+        float distance = spawnLocations[openLane].transform.position.y - playerY;
+        //Time for spawned object to reach player
+        float travelTime = distance / laneSpeeds[openLane];
+        //Time for object to spawn to reach player at the specific time
+        float spawnTime = arrivalTime - travelTime;
+        //Length of time before object spawns 
+        float waitDuration = spawnTime - Time.time;
+
+        if (waitDuration > 0)
+        {
+            //This ensures the code after the yield will not execute until the wait time is passed and the object is ready to spawn
+            yield return new WaitForSeconds(waitDuration);
+        }
+        int randomNum = UnityEngine.Random.Range(1, 101);
+        if (randomNum < 71)
+        {
+            objectToSpawn = Instantiate(coin, spawnLocations[openLane].transform.position, Quaternion.identity);
+            Debug.Log("Coin Spawned");
+        }
+        else if (randomNum < 96)
+        {
+            objectToSpawn = Instantiate(wrench, spawnLocations[openLane].transform.position, Quaternion.identity);
+            Debug.Log("Wrench Spawned");
+        }
+        else
+        {
+            objectToSpawn = Instantiate(upgrade, spawnLocations[openLane].transform.position, Quaternion.identity);
+            Debug.Log("Upgrade Spawned");
+        }
+        objectToSpawn.GetComponent<Coin>().setSpeed(laneSpeeds[openLane]);
     }
 }
