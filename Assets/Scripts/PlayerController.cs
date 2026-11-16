@@ -6,87 +6,110 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D player_rb;
     [SerializeField]
-    private float movementSpeed;
-    private bool isMoving;
+    private float moveDuration;
+    [SerializeField]
+    private float returnDuration;
     [SerializeField]
     private float moveDistance;
-    [SerializeField]
-    private LayerMask collisions;
+    private enum MoveState { Idle, Moving, Returning}
+    private MoveState moveState = MoveState.Idle;
+    private Vector2 startPosition;
+    private Vector2 targetPosition;
+    private float timer;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        player_rb = GetComponent<Rigidbody2D>();
-        isMoving = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        //movePlayer();
-        //Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), 0);
-        if (!isMoving)
+        if (moveState == MoveState.Idle)
         {
-            float input = Input.GetAxisRaw("Horizontal");
-            if (input != 0)
-            {
-                Vector2 targetPos = new Vector2(transform.position.x, -4) + ((new Vector2(input, 0) * moveDistance));
-                Vector2 targetPosHalf = new Vector2(transform.position.x, -4) + ((new Vector2(input, 0) * (moveDistance / 2)));
-                Vector2 originalPos = new Vector2(transform.position.x, -4);
-                StartCoroutine(movePlayerLateral(targetPos, targetPosHalf, originalPos));
-            }
+            getDirection();
+        }
+        else if (moveState == MoveState.Moving)
+        {
+            movePlayerLateral(startPosition, targetPosition, moveDuration, false);
+        }
+        else if (moveState == MoveState.Returning)
+        {
+            movePlayerLateral(startPosition, targetPosition, returnDuration, true);
         }
     }
 
-    //private void movePlayer()
-    //{
-    //    float inputHorizontal = Input.GetAxisRaw("Horizontal");
-    //    float inputVertical = Input.GetAxisRaw("Vertical");
-    //    player_rb.linearVelocity = new Vector2(player_rb.linearVelocityX, (inputVertical * movementSpeed));
-    //    player_rb.linearVelocity = new Vector2 ((inputHorizontal * movementSpeed), player_rb.linearVelocityY);
-    //    //Debug.Log("Movement Speed: " + movementSpeed);
-    //}
-
-    private IEnumerator movePlayerLateral(Vector2 targetPosition, Vector2 halfTargetPosition, Vector2 originalPos)
+    private void getDirection()
     {
-        isMoving = true;
-        Collider2D collision = Physics2D.OverlapCircle(targetPosition, 0.4f, collisions);
-        if (collision == null)
+        float input = Input.GetAxisRaw("Horizontal");
+        if (input != 0)
         {
-            while (Vector2.Distance(transform.position, halfTargetPosition) > 0.001f)
+            startPosition = transform.position;
+            targetPosition = startPosition + new Vector2(input * moveDistance, 0f);
+            timer = 0f;
+            moveState = MoveState.Moving;
+        }
+    }
+
+    private void movePlayerLateral(Vector2 originalPosition, Vector2 targetPosition, float duration, bool isReturning)
+    {
+        timer += Time.deltaTime;
+        float progress = (timer / duration);
+        if (progress > 1)
+        {
+            progress = 1;
+        }
+        else if (progress < 0)
+        {
+            progress = 0;
+        }
+
+        float lerpPercent;
+
+        if (!isReturning)
+        {
+            lerpPercent = progress;
+        }
+        else
+        {
+            lerpPercent = 1 - progress;
+        }
+
+        transform.position = Vector2.Lerp(originalPosition, targetPosition, lerpPercent);
+
+        if (progress >= 1)
+        {
+            if (isReturning)
             {
-                collision = Physics2D.OverlapCircle(targetPosition, 0.4f, collisions);
-                transform.position = Vector2.MoveTowards(transform.position, halfTargetPosition, (movementSpeed * Time.deltaTime));
-                yield return null;
+                transform.position = originalPosition;
+            }
+            else
+            {
+                transform.position = targetPosition;
+            }
+            moveState = MoveState.Idle;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (moveState == MoveState.Moving)
+        {
+            if (collision.CompareTag("Vehicle") || collision.CompareTag("Boundary"))
+            {
+                moveState = MoveState.Returning;
+                float progress = (timer / moveDuration);
+                if (progress > 1)
+                {
+                    progress = 1;
+                }
+                else if (progress < 0)
+                {
+                    progress = 0;
+                }
+
+                timer = (1 - progress) * returnDuration;
             }
         }
-        if (collision != null)
-        {
-            while (Vector2.Distance(transform.position, halfTargetPosition) > 0.001f)
-            {
-                transform.position = Vector2.MoveTowards(transform.position, halfTargetPosition, ((movementSpeed) * Time.deltaTime));
-                yield return null;
-            }
-        }
-        if (collision == null)
-        {
-            while (Vector2.Distance(transform.position, targetPosition) > 0.001f)
-            {
-                collision = Physics2D.OverlapCircle(targetPosition, 0.4f, collisions);
-                transform.position = Vector2.MoveTowards(transform.position, targetPosition, (movementSpeed * Time.deltaTime));
-                yield return null;
-            }
-            transform.position = targetPosition;
-        }
-        else 
-        {
-            while (Vector2.Distance(transform.position, originalPos) > 0.001f)
-            {
-                transform.position = Vector2.MoveTowards(transform.position, originalPos, ((movementSpeed) * Time.deltaTime));
-                yield return null;
-            }
-            transform.position = originalPos;
-        }
-        isMoving = false;
     }
 }

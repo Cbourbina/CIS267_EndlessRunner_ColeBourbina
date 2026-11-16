@@ -7,8 +7,10 @@ public class Truck : MonoBehaviour
     private bool changeLaneLeft;
     private bool changeLaneRight;
     private bool isMoving;
-    Vector2 targetPos;
-    Vector2 newPos;
+    private Vector2 targetPos;
+    private Vector2 newPos;
+    private Animator animator;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -21,10 +23,32 @@ public class Truck : MonoBehaviour
         {
             targetPos = (Vector2)transform.position + ((new Vector2(1, 0) * 2));
         }
+        animator = GetComponent<Animator>();
+        if (changeLaneLeft)
+        {
+            animator.SetBool("changeLaneLeft", true);
+        }
+        else if (changeLaneRight)
+        {
+            animator.SetBool("changeLaneRight", true);
+        }
     }
     // Update is called once per frame
     void Update()
     {
+        if (changeLaneLeft)
+        {
+            animator.SetBool("changeLaneLeft", true);
+        }
+        else if (changeLaneRight)
+        {
+            animator.SetBool("changeLaneRight", true);
+        }
+        if (!changeLaneLeft && !changeLaneRight)
+        {
+            animator.SetBool("changeLaneLeft", false);
+            animator.SetBool("changeLaneRight", false);
+        }
         transform.Translate(Vector2.down * vehicleSpeed * Time.deltaTime);
         if (!isMoving && transform.position.y <= 2)
         {
@@ -33,7 +57,6 @@ public class Truck : MonoBehaviour
                 newPos = transform.position;
                 StartCoroutine(changeLane(targetPos));
                 Debug.Log("Lane Changing, Left: " + changeLaneLeft + ", Right: " + changeLaneRight);
-                this.gameObject.GetComponent<SpriteRenderer>().color = Color.yellow;
                 isMoving = true;
             }
         }
@@ -48,7 +71,6 @@ public class Truck : MonoBehaviour
     private IEnumerator changeLane(Vector2 targetPosition)
     {
         Debug.Log("Lane Changing, Left: " + changeLaneLeft + ", Right: " + changeLaneRight);
-        this.gameObject.GetComponent<SpriteRenderer>().color = Color.yellow;
         while (Mathf.Abs(transform.position.x - targetPosition.x) > 0.001f)
         {
             newPos.x = Mathf.MoveTowards(transform.position.x, targetPosition.x, (vehicleSpeed * Time.deltaTime));
@@ -81,31 +103,34 @@ public class Truck : MonoBehaviour
     { 
     }
 
-    private void OnTriggerEnter2D(Collider2D triggerCollider)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         // Calculate distance and surface normal between the normal collider and the trigger
-        ColliderDistance2D distanceInfo = Physics2D.Distance(GetComponent<BoxCollider2D>(), triggerCollider);
+        ColliderDistance2D distanceInfo = Physics2D.Distance(GetComponent<BoxCollider2D>(), collision);
 
         // distanceInfo.normal points outward from myNormalCollider toward the trigger
         Vector2 hitSideNormal = distanceInfo.normal;
+        if (collision.CompareTag("Player"))
+        {
 
-        // Check which side of the normal collider was touched
-        if (hitSideNormal.y > 0.5f)
-        {
-            Debug.Log("Trigger touched the TOP side!");
-        }
-        else if (hitSideNormal.y < -0.5f)
-        {
-            Debug.Log("Trigger touched the BOTTOM side!");
-            Time.timeScale = 0f;
-        }
-        else if (hitSideNormal.x > 0.5f)
-        {
-            Debug.Log("Trigger touched the RIGHT side!");
-        }
-        else if (hitSideNormal.x < -0.5f)
-        {
-            Debug.Log("Trigger touched the LEFT side!");
+            // Check which side of the normal collider was touched
+            if (hitSideNormal.y > 0.5f)
+            {
+                Debug.Log("Trigger touched the TOP side!");
+            }
+            else if (hitSideNormal.y < -0.5f)
+            {
+                Debug.Log("Trigger touched the BOTTOM side! truck");
+                Time.timeScale = 0f;
+            }
+            else if (hitSideNormal.x > 0.5f)
+            {
+                Debug.Log("Trigger touched the RIGHT side!");
+            }
+            else if (hitSideNormal.x < -0.5f)
+            {
+                Debug.Log("Trigger touched the LEFT side!");
+            }
         }
     }
 }
