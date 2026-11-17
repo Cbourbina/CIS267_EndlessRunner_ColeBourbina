@@ -19,4 +19,17 @@ public class Coin : MonoBehaviour
     {
         collectableSpeed = speed;
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            //increase score
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+    }
 }

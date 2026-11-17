@@ -221,10 +221,11 @@ public class VehicleSpawner : MonoBehaviour
             yield return new WaitForSeconds(waitDuration);
         }
         int randomNum = UnityEngine.Random.Range(1, 101);
-        if (randomNum < 71)
+        if (randomNum < 91)
         {
             objectToSpawn = Instantiate(coin, spawnLocations[openLane].transform.position, Quaternion.identity);
             Debug.Log("Coin Spawned");
+            objectToSpawn.GetComponent<Coin>().setSpeed(laneSpeeds[openLane]);
         }
         else if (randomNum < 96)
         {
@@ -235,7 +236,7 @@ public class VehicleSpawner : MonoBehaviour
         {
             objectToSpawn = Instantiate(upgrade, spawnLocations[openLane].transform.position, Quaternion.identity);
             Debug.Log("Upgrade Spawned");
+            objectToSpawn.GetComponent<Upgrade>().setSpeed(laneSpeeds[openLane]);
         }
-        objectToSpawn.GetComponent<Coin>().setSpeed(laneSpeeds[openLane]);
     }
 }
