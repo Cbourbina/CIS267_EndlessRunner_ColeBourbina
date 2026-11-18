@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Coin : MonoBehaviour
+public class Gear : MonoBehaviour
 {
     private float collectableSpeed;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -24,7 +24,7 @@ public class Coin : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            //increase score
+            collision.GetComponent<PlayerController>().gameManager.GetComponent<PlayerScore>().addScore(25);
             Destroy(this.gameObject);
         }
         else

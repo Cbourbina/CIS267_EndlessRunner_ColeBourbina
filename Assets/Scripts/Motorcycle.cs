@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Motorcycle : MonoBehaviour
@@ -10,6 +11,7 @@ public class Motorcycle : MonoBehaviour
     private Vector2 targetPos;
     private Vector2 newPos;
     private Animator animator;
+    private Transform gameManager;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -31,6 +33,7 @@ public class Motorcycle : MonoBehaviour
         {
             animator.SetBool("changeLaneRight", true);
         }
+        gameManager = GameObject.FindWithTag("GameManager").transform;
     }
     // Update is called once per frame
     void Update()
@@ -99,31 +102,27 @@ public class Motorcycle : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Calculate distance and surface normal between the normal collider and the trigger
         ColliderDistance2D distanceInfo = Physics2D.Distance(GetComponent<BoxCollider2D>(), collision);
 
-        // distanceInfo.normal points outward from myNormalCollider toward the trigger
         Vector2 hitSideNormal = distanceInfo.normal;
         if (collision.CompareTag("Player"))
         {
-
-            // Check which side of the normal collider was touched
-            if (hitSideNormal.y > 0.5f)
+            //Bottom Side
+            if (hitSideNormal.y < -0.5f)
             {
-                Debug.Log("Trigger touched the TOP side!");
+                collision.GetComponent<PlayerController>().gameManager.GetComponent<GameManager>().setHealth(0);
             }
-            else if (hitSideNormal.y < -0.5f)
-            {
-                Debug.Log("Trigger touched the BOTTOM side! motorcycle");
-                Time.timeScale = 0f;
-            }
+            //Right Side
             else if (hitSideNormal.x > 0.5f)
             {
-                Debug.Log("Trigger touched the RIGHT side!");
+                honkHorn();
+                gameManager.GetComponent<GameManager>().decreaseHealth();
             }
+            //Left Side
             else if (hitSideNormal.x < -0.5f)
             {
-                Debug.Log("Trigger touched the LEFT side!");
+                honkHorn();
+                gameManager.GetComponent<GameManager>().decreaseHealth();
             }
         }
     }

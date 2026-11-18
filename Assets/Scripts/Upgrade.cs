@@ -25,6 +25,7 @@ public class Upgrade : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             collision.GetComponent<PlayerController>().upgradeCar();
+            collision.GetComponent<PlayerController>().gameManager.GetComponent<PlayerScore>().addScore(100);
             Destroy(this.gameObject);
         }
         else

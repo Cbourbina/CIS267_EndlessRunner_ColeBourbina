@@ -9,7 +9,7 @@ public class VehicleSpawner : MonoBehaviour
     public GameObject bigRig;
     public GameObject truck;
     public GameObject motorcycle;
-    public GameObject coin;
+    public GameObject gear;
     public GameObject wrench;
     public GameObject upgrade;
     public GameObject[] spawnLocations;
@@ -223,14 +223,15 @@ public class VehicleSpawner : MonoBehaviour
         int randomNum = UnityEngine.Random.Range(1, 101);
         if (randomNum < 91)
         {
-            objectToSpawn = Instantiate(coin, spawnLocations[openLane].transform.position, Quaternion.identity);
-            Debug.Log("Coin Spawned");
-            objectToSpawn.GetComponent<Coin>().setSpeed(laneSpeeds[openLane]);
+            objectToSpawn = Instantiate(gear, spawnLocations[openLane].transform.position, Quaternion.identity);
+            Debug.Log("gear Spawned");
+            objectToSpawn.GetComponent<Gear>().setSpeed(laneSpeeds[openLane]);
         }
         else if (randomNum < 96)
         {
             objectToSpawn = Instantiate(wrench, spawnLocations[openLane].transform.position, Quaternion.identity);
             Debug.Log("Wrench Spawned");
+            objectToSpawn.GetComponent<Wrench>().setSpeed(laneSpeeds[openLane]);
         }
         else
         {

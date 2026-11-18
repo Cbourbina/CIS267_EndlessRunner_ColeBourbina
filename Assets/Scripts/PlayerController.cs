@@ -1,4 +1,6 @@
 using System.Collections;
+using System.ComponentModel.Design.Serialization;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -12,7 +14,7 @@ public class PlayerController : MonoBehaviour
     private float returnDuration;
     [SerializeField]
     private float moveDistance;
-    private enum MoveState { Idle, Moving, Returning}
+    private enum MoveState { Idle, Moving, Returning, Exploding}
     private MoveState moveState = MoveState.Idle;
     private Vector2 startPosition;
     private Vector2 targetPosition;
@@ -25,6 +27,17 @@ public class PlayerController : MonoBehaviour
     private Sprite playerCarDefault;
     private SpriteRenderer spriteRenderer;
     private bool isMoving = false;
+    public Transform gameManager;
+    private GameObject objectToSpawn;
+    [SerializeField]
+    private GameObject explosion;
+    [SerializeField]
+    private GameObject upgradeInfo;
+    [SerializeField]
+    private TMP_Text upgradeTimerDisplay;
+    [SerializeField]
+    private Sprite[] playerCarDamaged;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -34,6 +47,12 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (gameManager.GetComponent<GameManager>().getHealth() <= 0 && moveState != MoveState.Exploding)
+        {
+            gameManager.GetComponent<PlayerScore>().stopScore = true;
+            moveState = MoveState.Exploding;
+            objectToSpawn = Instantiate(explosion, this.transform.position, Quaternion.identity);
+        }
         if (!isMoving)
         {
             if (moveState == MoveState.Idle)
@@ -51,23 +70,46 @@ public class PlayerController : MonoBehaviour
             if (canOffRoad)
             {
                 upgradeTimer += Time.deltaTime;
+                int timeRemaining = (int)(10 - upgradeTimer);
+                upgradeTimerDisplay.text = timeRemaining.ToString();
                 if (upgradeTimer >= 10)
                 {
                     canOffRoad = false;
+                    upgradeInfo.SetActive(false);
                     Debug.Log("Car Downgraded");
                     spriteRenderer.sprite = playerCarDefault;
                     if (transform.position.x < -3)
                     {
-                        moveState = MoveState.Moving;
+                        moveState = MoveState.Returning;
                         StartCoroutine(moveCellLateral(new Vector2(-4, -4)));
                     }
                     if (transform.position.x > 3)
                     {
-                        moveState = MoveState.Moving;
+                        moveState = MoveState.Returning;
                         StartCoroutine(moveCellLateral(new Vector2(4, -4)));
+                    }
+                    if (gameManager.GetComponent<GameManager>().getHealth() > 100)
+                    {
+                        gameManager.GetComponent<GameManager>().setHealth(100);
                     }
                 }
             }
+        }
+        if (gameManager.GetComponent<GameManager>().getHealth() < 26 && !canOffRoad)
+        {
+            spriteRenderer.sprite = playerCarDamaged[2];
+        }
+        else if (gameManager.GetComponent<GameManager>().getHealth() < 51 && !canOffRoad)
+        {
+            spriteRenderer.sprite = playerCarDamaged[1];
+        }
+        else if (gameManager.GetComponent<GameManager>().getHealth() < 76 && !canOffRoad)
+        {
+            spriteRenderer.sprite = playerCarDamaged[0];
+        }
+        else if (!canOffRoad)
+        {
+            spriteRenderer.sprite = playerCarDefault;
         }
     }
 
@@ -125,6 +167,10 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (moveState == MoveState.Returning && collision.CompareTag("Vehicle"))
+        {
+            gameManager.GetComponent<GameManager>().setHealth(0);
+        }
         if (moveState == MoveState.Moving)
         {
             if (collision.CompareTag("Vehicle") || collision.CompareTag("Boundary"))
@@ -166,6 +212,20 @@ public class PlayerController : MonoBehaviour
         upgradeTimer = 0f;
         Debug.Log("Car Upgraded");
         spriteRenderer.sprite = upgradedCar;
+        gameManager.GetComponent<GameManager>().setHealth(200);
+        upgradeInfo.SetActive(true);
+    }
+
+    public void repairCar()
+    {
+        if (canOffRoad)
+        {
+            gameManager.GetComponent<GameManager>().setHealth(200);
+        }
+        else
+        {
+            gameManager.GetComponent<GameManager>().setHealth(100);
+        }
     }
 
     private IEnumerator moveCellLateral(Vector2 targetPosition)
