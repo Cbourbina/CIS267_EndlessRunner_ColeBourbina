@@ -20,7 +20,9 @@ public class PlayerController : MonoBehaviour
     private Vector2 targetPosition;
     private float moveTimer;
     private float upgradeTimer;
+    private float ghostTimer;
     private bool canOffRoad = false;
+    private bool isGhosted = false;
     [SerializeField]
     private Sprite upgradedCar;
     [SerializeField]
@@ -37,6 +39,10 @@ public class PlayerController : MonoBehaviour
     private TMP_Text upgradeTimerDisplay;
     [SerializeField]
     private Sprite[] playerCarDamaged;
+    [SerializeField]
+    private GameObject ghostInfo;
+    [SerializeField]
+    private TMP_Text ghostTimerDisplay;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -92,6 +98,23 @@ public class PlayerController : MonoBehaviour
                     {
                         gameManager.GetComponent<GameManager>().setHealth(100);
                     }
+                }
+            }
+            if (isGhosted)
+            {
+                ghostTimer += Time.deltaTime;
+                int timeRemaining = (int)(10 - ghostTimer);
+                ghostTimerDisplay.text = timeRemaining.ToString();
+                if (ghostTimer >= 10)
+                {
+                    isGhosted = false;
+                    ghostInfo.SetActive(false);
+                    Debug.Log("Car Unghosted");
+                    Color spriteOpacity = spriteRenderer.color;
+                    spriteOpacity.a = 1f;
+                    spriteRenderer.color = spriteOpacity;
+                    this.tag = "Player";
+
                 }
             }
         }
@@ -169,24 +192,30 @@ public class PlayerController : MonoBehaviour
     {
         if (moveState == MoveState.Returning && collision.CompareTag("Vehicle"))
         {
-            gameManager.GetComponent<GameManager>().setHealth(0);
+            if (!isGhosted)
+            {
+                gameManager.GetComponent<GameManager>().setHealth(0);
+            }
         }
         if (moveState == MoveState.Moving)
         {
             if (collision.CompareTag("Vehicle") || collision.CompareTag("Boundary"))
             {
-                moveState = MoveState.Returning;
-                float progress = (moveTimer / moveDuration);
-                if (progress > 1)
+                if (!isGhosted)
                 {
-                    progress = 1;
-                }
-                else if (progress < 0)
-                {
-                    progress = 0;
-                }
+                    moveState = MoveState.Returning;
+                    float progress = (moveTimer / moveDuration);
+                    if (progress > 1)
+                    {
+                        progress = 1;
+                    }
+                    else if (progress < 0)
+                    {
+                        progress = 0;
+                    }
 
-                moveTimer = (1 - progress) * returnDuration;
+                    moveTimer = (1 - progress) * returnDuration;
+                }
             }
             if (!canOffRoad && collision.CompareTag("OffRoad"))
             {
@@ -214,6 +243,18 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.sprite = upgradedCar;
         gameManager.GetComponent<GameManager>().setHealth(200);
         upgradeInfo.SetActive(true);
+    }
+
+    public void ghostCar()
+    {
+        isGhosted = true;
+        ghostTimer = 0f;
+        Debug.Log("Car Ghosted");
+        Color spriteOpacity = spriteRenderer.color;
+        spriteOpacity.a = 0.5f;
+        spriteRenderer.color = spriteOpacity;
+        this.tag = "Ghost";
+        ghostInfo.SetActive(true);
     }
 
     public void repairCar()

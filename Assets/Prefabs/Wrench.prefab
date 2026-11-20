@@ -287,6 +287,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4d68fabbdc6a6a40a6a7b2d13c53399, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wrench
+  collectableCollected: {fileID: 8300000, guid: 194acdb364df568498528e64c39bf998, type: 3}
+  volume: 3
 --- !u!1 &9146616196918096534
 GameObject:
   m_ObjectHideFlags: 0

@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject upgradePanel;
     [SerializeField]
+    private GameObject ghostPanel;
+    [SerializeField]
     private GameObject gameOverPanel;
     [SerializeField]
     private TMP_Text startTimer;
@@ -40,6 +42,14 @@ public class GameManager : MonoBehaviour
     private float scoreMod;
     private bool gameOverBool = false;
     private List<HighScore> listOfHighScores = new List<HighScore>();
+    [SerializeField]
+    private AudioClip engineStart;
+    [SerializeField]
+    AudioSource audioSource;
+    [SerializeField]
+    AudioSource audioSource2;
+    [SerializeField]
+    private float volume;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -65,9 +75,13 @@ public class GameManager : MonoBehaviour
                     timer = 0f;
                     if (startGame)
                     {
+                        audioSource.PlayOneShot(engineStart);
+                        audioSource.Play();
+                        audioSource2.Play();
                         startPanel.SetActive(false);
                         gameInfo.SetActive(true);
                         upgradePanel.SetActive(false);
+                        ghostPanel.SetActive(false);
                         Time.timeScale = 1f;
                         startGame = false;
                     }
@@ -115,10 +129,13 @@ public class GameManager : MonoBehaviour
 
     public void gameOver()
     {
+        audioSource.Stop();
+        audioSource2.Stop();
         GetComponent<PlayerScore>().evaluateScore("");
         Time.timeScale = 0f;
         gameOverPanel.SetActive(true);
         gameInfo.SetActive(false);
+        playerScoreGameOver.text = GetComponent<PlayerScore>().getScore().ToString();
         readScores("highScores.txt");
         for (int i = 0; i < listOfHighScores.Count; i++)
         {

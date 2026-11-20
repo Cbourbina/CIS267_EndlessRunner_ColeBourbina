@@ -153,6 +153,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb2d03b65e7b312498441de8c9d68ff3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Car
+  horn: {fileID: 8300000, guid: c5a37ebd05669d34692bb9b747aaaa77, type: 3}
+  sideSwipe: {fileID: 8300000, guid: 431f8cf1c88ed7d42840efb1442d85f0, type: 3}
+  volume: 1
 --- !u!95 &5856241006033713861
 Animator:
   serializedVersion: 7

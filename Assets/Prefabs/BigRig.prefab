@@ -153,6 +153,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e23c79d6992b374aaf824c04438f7d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BigRig
+  horn: {fileID: 8300000, guid: ed5ac110fb2ce8049a7da2f4a82e778c, type: 3}
+  sideSwipe: {fileID: 8300000, guid: 431f8cf1c88ed7d42840efb1442d85f0, type: 3}
+  volume: 5
 --- !u!95 &4826519443936896713
 Animator:
   serializedVersion: 7

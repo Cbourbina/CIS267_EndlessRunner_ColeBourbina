@@ -193,3 +193,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c089baf62d8453446ba49176274dc740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Explosion
+  explosion: {fileID: 8300000, guid: 53b5c28719a00084fa9017a0f63ba05b, type: 3}
+  volume: 5

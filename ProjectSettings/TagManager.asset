@@ -9,6 +9,7 @@ TagManager:
   - OffRoad
   - GameManager
   - ExplosiveRadius
+  - Ghost
   layers:
   - Default
   - TransparentFX

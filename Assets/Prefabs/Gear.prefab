@@ -260,6 +260,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45115a8814982e941a8255c1ebf9adc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
+  collectableCollected: {fileID: 8300000, guid: 194acdb364df568498528e64c39bf998, type: 3}
+  volume: 3
 --- !u!50 &1755780315416074039
 Rigidbody2D:
   serializedVersion: 5

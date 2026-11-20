@@ -12,6 +12,7 @@ public class VehicleSpawner : MonoBehaviour
     public GameObject gear;
     public GameObject wrench;
     public GameObject upgrade;
+    public GameObject ghost;
     public GameObject[] spawnLocations;
     private GameObject objectToSpawn;
     [SerializeField]
@@ -221,17 +222,23 @@ public class VehicleSpawner : MonoBehaviour
             yield return new WaitForSeconds(waitDuration);
         }
         int randomNum = UnityEngine.Random.Range(1, 101);
-        if (randomNum < 91)
+        if (randomNum < 81)
         {
             objectToSpawn = Instantiate(gear, spawnLocations[openLane].transform.position, Quaternion.identity);
             Debug.Log("gear Spawned");
             objectToSpawn.GetComponent<Gear>().setSpeed(laneSpeeds[openLane]);
         }
-        else if (randomNum < 96)
+        else if (randomNum < 91)
         {
             objectToSpawn = Instantiate(wrench, spawnLocations[openLane].transform.position, Quaternion.identity);
             Debug.Log("Wrench Spawned");
             objectToSpawn.GetComponent<Wrench>().setSpeed(laneSpeeds[openLane]);
+        }
+        else if (randomNum < 96)
+        {
+            objectToSpawn = Instantiate(ghost, spawnLocations[openLane].transform.position, Quaternion.identity);
+            Debug.Log("Ghost Spawned");
+            objectToSpawn.GetComponent<Ghost>().setSpeed(laneSpeeds[openLane]);
         }
         else
         {

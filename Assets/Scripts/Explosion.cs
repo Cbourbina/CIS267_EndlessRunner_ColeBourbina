@@ -2,10 +2,14 @@ using UnityEngine;
 
 public class Explosion : MonoBehaviour
 {
+    [SerializeField]
+    AudioClip explosion;
+    [SerializeField]
+    private float volume;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+            AudioSource.PlayClipAtPoint(explosion, transform.position, volume);
     }
 
     // Update is called once per frame

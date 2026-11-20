@@ -11,6 +11,12 @@ public class Car : MonoBehaviour
     private Vector2 newPos;
     private Animator animator;
     private Transform gameManager;
+    [SerializeField]
+    private AudioClip horn;
+    [SerializeField]
+    private AudioClip sideSwipe;
+    [SerializeField]
+    private float volume;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -103,6 +109,8 @@ public class Car : MonoBehaviour
 
     public void honkHorn()
     {
+        AudioSource.PlayClipAtPoint(horn, transform.position, volume);
+        AudioSource.PlayClipAtPoint(sideSwipe, transform.position, volume);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

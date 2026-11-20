@@ -49,6 +49,11 @@ public class GUIButtonHandler : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
+    public void how2Play()
+    {
+        SceneManager.LoadScene("HowToPlay");
+    }
+
     public void loadScoreScreen()
     {
         readScores("highScores.txt");

@@ -202,6 +202,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb87dc850f95677499b720ffce788c5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Upgrade
+  collectableCollected: {fileID: 8300000, guid: 194acdb364df568498528e64c39bf998, type: 3}
+  volume: 3
 --- !u!58 &1044109590119697534
 CircleCollider2D:
   m_ObjectHideFlags: 0

@@ -3,6 +3,10 @@ using UnityEngine;
 public class Gear : MonoBehaviour
 {
     private float collectableSpeed;
+    [SerializeField]
+    private AudioClip collectableCollected;
+    [SerializeField]
+    float volume;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -22,8 +26,9 @@ public class Gear : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") || collision.CompareTag("Ghost"))
         {
+            AudioSource.PlayClipAtPoint(collectableCollected, transform.position, volume);
             collision.GetComponent<PlayerController>().gameManager.GetComponent<PlayerScore>().addScore(25);
             Destroy(this.gameObject);
         }
